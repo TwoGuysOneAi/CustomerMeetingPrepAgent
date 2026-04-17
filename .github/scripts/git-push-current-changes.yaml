@@ -1,0 +1,29 @@
+name: Git Push Current Changes
+trigger:
+  - "git push current changes"
+  - "git push changes"
+
+steps:
+  - name: Stage all changes
+    run: git add .
+
+  - name: Retrieve username
+    run: git config user.name
+
+  - name: Analyze staged diff (summary)
+    run: git --no-pager diff --cached --stat
+
+  - name: Analyze staged diff (content)
+    run: git --no-pager diff --cached | Select-Object -First 300
+
+  - name: Generate semantic commit message
+    instruction: Analyze the diff output and generate a concise semantic commit message.
+
+  - name: Format commit message
+    instruction: |
+      Format as "<username>: <semantic message>"
+
+  - name: Commit and push
+    run: |
+      git commit -m "<formatted message>"
+      git push

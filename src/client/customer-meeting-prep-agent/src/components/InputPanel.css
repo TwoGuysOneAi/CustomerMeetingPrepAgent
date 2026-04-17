@@ -1,0 +1,140 @@
+.input-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-panel__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.input-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-panel__field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input-panel__field .optional {
+  font-weight: 400;
+  text-transform: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.input-panel__field input,
+.input-panel__field textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+.input-panel__field input:focus,
+.input-panel__field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.input-panel__field input:disabled,
+.input-panel__field textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.url-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.url-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.url-row input {
+  flex: 1;
+}
+
+.url-remove {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.url-remove:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.url-add {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.url-add:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.url-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+

@@ -1,0 +1,114 @@
+.briefing-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.briefing-section:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.briefing-section__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  transition: background 0.15s;
+}
+
+.briefing-section__header:hover {
+  background: var(--accent-soft);
+}
+
+.briefing-section__icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.briefing-section__title {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.briefing-section__chevron {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.briefing-section__body {
+  padding: 4px 20px 20px 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.briefing-section__body ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.briefing-section__body li {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.briefing-section__body p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 8px 0 0 0;
+}
+
+.briefing-section__body .tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.briefing-section__body .tag {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.briefing-section__body .risk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.briefing-section__body .risk-item .badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.badge--high { background: #fee2e2; color: #dc2626; }
+.badge--medium { background: #fef9c3; color: #ca8a04; }
+.badge--low { background: #dcfce7; color: #16a34a; }
+

@@ -46,25 +46,8 @@
 - When adding first HTTP endpoint, include at least one web test and keep `contextLoads()` as startup smoke coverage.
 - Update this file when architecture expands beyond the current single-module scaffold.
 
-## Skill: Git Push Current Changes
+---
 
-When the user says "git push current changes":
+## Skills
 
-1. Stage all changes:
-   git add .
-
-2. Retrieve username:
-   git config user.name
-
-3. Analyze changes using:
-   git diff --cached
-
-4. Generate a semantic commit message
-
-5. Format:
-   "<username>: <message>"
-
-6. Execute:
-   git commit -m "<message>"
-   git push
-
+Agent skills (triggered workflows) are defined in [SKILLS.md](.github/SKILLS.md).
