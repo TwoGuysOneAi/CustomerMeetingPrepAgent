@@ -4,9 +4,9 @@ trigger:
   - "git push changes"
 
 steps:
-  - name: Checkout main and pull latest
+  - name: Checkout master and pull latest
     run: |
-      git checkout main
+      git checkout master
       git pull
 
   - name: Ask for branch name
