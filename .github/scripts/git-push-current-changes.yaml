@@ -9,28 +9,8 @@ steps:
       git checkout master
       git pull
 
-  - name: Ask for branch name
-    instruction: Ask the user for a short branch description (e.g. "initial ui scaffolding").
-
-  - name: Derive branch name
-    instruction: |
-      Take the user's input, fix any grammar/spelling, convert to lowercase kebab-case,
-      strip special characters, and truncate to 50 characters max.
-      Prepend "feature/" to produce the final branch name (e.g. "feature/initial-ui-scaffolding").
-      Store this as <branch name>.
-
   - name: Stash current changes
     run: git stash
-
-  - name: Check if branch exists
-    run: git branch --list "<branch name>"
-
-  - name: Switch to or create branch
-    instruction: |
-      If the previous step returned a branch name, run:
-        git checkout <branch name>
-      Otherwise run:
-        git checkout -b <branch name>
 
   - name: Unstash changes
     run: git stash pop
@@ -43,6 +23,26 @@ steps:
 
   - name: Analyze staged diff (content)
     run: git --no-pager diff --cached | Select-Object -First 300
+
+  - name: Generate branch name
+    instruction: |
+      Analyze the diff summary and content to produce a short branch name.
+      Rules:
+        - Summarise the change in 3-5 words
+        - Fix grammar/spelling, convert to lowercase kebab-case, strip special characters
+        - Truncate to 50 characters max
+        - Prepend "feature/" (e.g. "feature/add-llm-backend-integration")
+      Store this as <branch name>.
+
+  - name: Check if branch exists
+    run: git branch --list "<branch name>"
+
+  - name: Switch to or create branch
+    instruction: |
+      If the previous step returned a branch name, run:
+        git checkout <branch name>
+      Otherwise run:
+        git checkout -b <branch name>
 
   - name: Generate semantic commit message
     instruction: |
