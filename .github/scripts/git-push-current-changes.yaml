@@ -4,11 +4,39 @@ trigger:
   - "git push changes"
 
 steps:
+  - name: Checkout main and pull latest
+    run: |
+      git checkout main
+      git pull
+
+  - name: Ask for branch name
+    instruction: Ask the user for a short branch description (e.g. "initial ui scaffolding").
+
+  - name: Derive branch name
+    instruction: |
+      Take the user's input, fix any grammar/spelling, convert to lowercase kebab-case,
+      strip special characters, and truncate to 50 characters max.
+      Prepend "feature/" to produce the final branch name (e.g. "feature/initial-ui-scaffolding").
+      Store this as <branch name>.
+
+  - name: Stash current changes
+    run: git stash
+
+  - name: Check if branch exists
+    run: git branch --list "<branch name>"
+
+  - name: Switch to or create branch
+    instruction: |
+      If the previous step returned a branch name, run:
+        git checkout <branch name>
+      Otherwise run:
+        git checkout -b <branch name>
+
+  - name: Unstash changes
+    run: git stash pop
+
   - name: Stage all changes
     run: git add .
-
-  - name: Retrieve username
-    run: git config user.name
 
   - name: Analyze staged diff (summary)
     run: git --no-pager diff --cached --stat
@@ -17,13 +45,16 @@ steps:
     run: git --no-pager diff --cached | Select-Object -First 300
 
   - name: Generate semantic commit message
-    instruction: Analyze the diff output and generate a concise semantic commit message.
+    instruction: |
+      Analyze the diff output and generate a concise, plain commit message.
+      Do NOT use conventional commit prefixes like "feat:", "fix:", etc.
 
   - name: Format commit message
     instruction: |
-      Format as "<username>: <semantic message>"
+      Format as "<branch name>: <message>"
+      e.g. "feature/initial-ui-scaffolding: add React and Vite client app scaffold"
 
   - name: Commit and push
     run: |
       git commit -m "<formatted message>"
-      git push
+      git push --set-upstream origin <branch name>
