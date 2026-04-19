@@ -60,4 +60,4 @@ Agent skills (triggered workflows) are defined in [SKILLS.md](.github/SKILLS.md)
 3. **Execute every step in order.** Follow each `run` and `instruction` step exactly as defined — do not skip, reorder, or substitute steps.
 4. **Never shortcut the workflow.** For example, the `git push changes` skill requires a feature branch and a pull request — never push directly to `master`.
 5. **Treat skill steps as hard rules**, not suggestions. If a step cannot be completed, report the failure to the user rather than silently skipping it.
-
+6. **Do not push changes unless explicitly asked to do so, based on the skill**
