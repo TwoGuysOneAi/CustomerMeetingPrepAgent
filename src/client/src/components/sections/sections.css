@@ -14,6 +14,7 @@
   background: var(--surface);
   cursor: pointer;
   user-select: none;
+  border: none;
 }
 .section-card__header:hover { background: rgba(0, 0, 0, 0.01); }
 .section-card__icon { font-size: 0.95rem; flex-shrink: 0; opacity: 0.65; }
