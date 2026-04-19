@@ -9,11 +9,11 @@ import './App.css';
 const PHASE = { IDLE: 'idle', RUNNING: 'running', COMPLETE: 'complete', ERROR: 'error' };
 const STEP_DURATION_MS = 1400;
 
-async function callAnalysisApi({ problemUrl, contextUrls }) {
+async function callAnalysisApi({ customerName, meetingContext, previousMeetingNotes, problemUrl, contextUrls }) {
   const response = await fetch('/api/analysis', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ problemUrl, contextUrls }),
+    body: JSON.stringify({ customerName, meetingContext, previousMeetingNotes, problemUrl, contextUrls }),
   });
   if (!response.ok) {
     const text = await response.text();
@@ -46,11 +46,14 @@ export default function App() {
 
     try {
       const output = await callAnalysisApi({
+        customerName: data.customerName,
+        meetingContext: data.meetingContext,
+        previousMeetingNotes: data.previousMeetingNotes,
         problemUrl: data.problemUrl,
         contextUrls: data.urls,
       });
       clearInterval(stepInterval);
-      setBriefing({ customerName: data.customerName, meetingContext: data.meetingContext, problemUrl: data.problemUrl, urls: data.urls, output });
+      setBriefing({ customerName: data.customerName, meetingContext: data.meetingContext, previousMeetingNotes: data.previousMeetingNotes, problemUrl: data.problemUrl, urls: data.urls, output });
       setPhase(PHASE.COMPLETE);
     } catch (err) {
       clearInterval(stepInterval);

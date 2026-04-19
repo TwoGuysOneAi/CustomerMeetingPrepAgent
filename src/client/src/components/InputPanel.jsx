@@ -142,4 +142,3 @@ export default function InputPanel({ onSubmit, isDisabled }) {
     </form>
   );
 }
-
