@@ -58,53 +58,6 @@
   background: #eff6ff; color: #2563eb;
 }
 
-/* View mode toggle */
-.view-toggle {
-  display: flex;
-  gap: 6px;
-}
-
-.view-toggle-btn {
-  flex: 1;
-  padding: 7px 0;
-  border-radius: 7px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-secondary);
-  transition: all 0.15s;
-}
-
-.view-toggle-btn--active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
-/* Notes */
-.notes-area {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.83rem;
-  font-family: inherit;
-  color: var(--text-primary);
-  resize: none;
-  line-height: 1.6;
-  min-height: 120px;
-  transition: border-color 0.2s;
-}
-
-.notes-area:focus { outline: none; border-color: var(--accent); }
-
-.notes-saved {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-  text-align: right;
-}
+/* View mode toggle — removed */
+/* Notes — removed */
 

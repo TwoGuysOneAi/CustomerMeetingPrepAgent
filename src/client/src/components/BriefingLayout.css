@@ -24,14 +24,7 @@
   min-width: 0;
 }
 
-/* Executive view — hide detailed/operational content */
-.briefing-layout--executive .phase-block__content,
-.briefing-layout--executive .gap-item__detail,
-.briefing-layout--executive .flow-node:last-child,
-.briefing-layout--executive .kanban-col--medium,
-.briefing-layout--executive .kanban-col--long {
-  display: none;
-}
+/* View mode rules — removed */
 
 @media (max-width: 1200px) {
   .briefing-layout { --right-panel-width: 260px; }

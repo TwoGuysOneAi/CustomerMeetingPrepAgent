@@ -4,8 +4,6 @@ import './sections.css';
 
 const SIGNAL_LABELS = {
   riskLevel:      'Risk Level',
-  sentiment:      'Sentiment',
-  engagementLevel:'Engagement',
   businessImpact: 'Business Impact',
   renewalRisk:    'Renewal Risk',
 };
