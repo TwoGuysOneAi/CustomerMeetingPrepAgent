@@ -32,4 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-src/client/
+### Node ###
+src/client/node_modules/
+src/client/dist/
+
