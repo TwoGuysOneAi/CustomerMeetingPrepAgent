@@ -4,8 +4,11 @@ spring:
 
 llm:
   api:
-    url: https://api.openai.com/v1/chat/completions
-    key: your-api-key-here
+    url: https://ddc4c-gns-generative-ai-generativeapi.route53.lexis.com/v1/completions
+    jobs-url: https://ddc4c-gns-generative-ai-generativeapi.route53.lexis.com/v1/jobs
+  polling:
+    max-attempts: 30
+    interval-ms: 2000
 
 server:
   port: 8081

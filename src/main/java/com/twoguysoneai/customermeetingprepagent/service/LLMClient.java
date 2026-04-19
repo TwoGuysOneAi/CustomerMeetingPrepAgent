@@ -1,5 +1,7 @@
 package com.twoguysoneai.customermeetingprepagent.service;
 
+import com.twoguysoneai.customermeetingprepagent.dto.LLMRequest;
+import com.twoguysoneai.customermeetingprepagent.dto.Message;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,57 +15,157 @@ import java.util.Map;
 @Service
 public class LLMClient {
 
+    private static final String MODEL = "claude-4.5-sonnet-20250929-ondemand_gapi";
+    private static final String MODEL_HOST = "LLM_PROXY_BEDROCK";
+
     private final RestTemplate restTemplate;
-    private final String apiUrl;
-    private final String apiKey;
+    private final String completionsUrl;
+    private final String jobsBaseUrl;
+    private final int pollMaxAttempts;
+    private final long pollIntervalMs;
 
     public LLMClient(
             RestTemplate restTemplate,
-            @Value("${llm.api.url}") String apiUrl,
-            @Value("${llm.api.key}") String apiKey) {
+            @Value("${llm.api.url}") String completionsUrl,
+            @Value("${llm.api.jobs-url}") String jobsBaseUrl,
+            @Value("${llm.polling.max-attempts:30}") int pollMaxAttempts,
+            @Value("${llm.polling.interval-ms:2000}") long pollIntervalMs) {
         this.restTemplate = restTemplate;
-        this.apiUrl = apiUrl;
-        this.apiKey = apiKey;
+        this.completionsUrl = completionsUrl;
+        this.jobsBaseUrl = jobsBaseUrl;
+        this.pollMaxAttempts = pollMaxAttempts;
+        this.pollIntervalMs = pollIntervalMs;
     }
 
     /**
-     * Sends the prompt to the configured LLM API and returns the response text.
+     * Submits a prompt to the GAPI completions endpoint, polls the job until
+     * it is COMPLETE or ERROR, then returns the result text.
      */
     public String call(String prompt) {
+        String jobId = submitJob(prompt);
+        return pollForResult(jobId);
+    }
+
+    // --- Private helpers ---
+
+    private String submitJob(String prompt) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.set("accept", "application/json");
 
-        // Request body follows the OpenAI chat completions format.
-        Map<String, Object> requestBody = Map.of(
-                "model", "gpt-4o",
-                "messages", List.of(
-                        Map.of("role", "user", "content", prompt)
-                )
-        );
+        Message userMessage = new Message("user", "USER", prompt);
+        LLMRequest requestBody = new LLMRequest(List.of(userMessage), MODEL, MODEL_HOST, 4000);
 
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+        HttpEntity<LLMRequest> request = new HttpEntity<>(requestBody, headers);
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> response = restTemplate.postForObject(apiUrl, request, Map.class);
+        Map<String, Object> response = restTemplate.postForObject(completionsUrl, request, Map.class);
 
-        return extractContent(response);
+        return extractJobId(response);
     }
 
     @SuppressWarnings("unchecked")
-    private String extractContent(Map<String, Object> response) {
+    private String extractJobId(Map<String, Object> response) {
         if (response == null) {
-            return "No response received from LLM.";
+            throw new IllegalStateException("No response received from completions endpoint.");
         }
-        List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
-        if (choices == null || choices.isEmpty()) {
-            return "Empty choices in LLM response.";
+        try {
+            Map<String, Object> data = (Map<String, Object>) response.get("data");
+            if (data != null) {
+                String jobId = (String) data.get("job_id");
+                if (jobId != null && !jobId.isBlank()) {
+                    return jobId;
+                }
+            }
+        } catch (ClassCastException e) {
+            throw new IllegalStateException("Unexpected completions response structure: " + e.getMessage(), e);
         }
-        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-        if (message == null) {
-            return "No message in LLM response.";
+        throw new IllegalStateException("job_id missing from completions response: " + response);
+    }
+
+    private String pollForResult(String jobId) {
+        String jobUrl = jobsBaseUrl + "/" + jobId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("accept", "application/json");
+
+        for (int attempt = 1; attempt <= pollMaxAttempts; attempt++) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> jobResponse = restTemplate.getForObject(jobUrl, Map.class);
+
+            String status = extractJobStatus(jobResponse);
+
+            switch (status) {
+                case "COMPLETE" -> { return extractCompletions(jobResponse); }
+                case "ERROR"    -> { return extractJobError(jobResponse); }
+                case "RUNNING"  -> sleep(pollIntervalMs);
+                default         -> throw new IllegalStateException("Unknown job status: " + status);
+            }
         }
-        return (String) message.get("content");
+
+        throw new IllegalStateException(
+                "LLM job did not complete after " + pollMaxAttempts + " attempts (job_id: " + jobId + ").");
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractJobStatus(Map<String, Object> jobResponse) {
+        if (jobResponse == null) {
+            throw new IllegalStateException("Null response when polling job status.");
+        }
+        try {
+            Map<String, Object> data = (Map<String, Object>) jobResponse.get("data");
+            if (data != null) {
+                String status = (String) data.get("status");
+                if (status != null) {
+                    return status;
+                }
+            }
+        } catch (ClassCastException e) {
+            throw new IllegalStateException("Unexpected job response structure: " + e.getMessage(), e);
+        }
+        throw new IllegalStateException("status missing from job response: " + jobResponse);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractCompletions(Map<String, Object> jobResponse) {
+        // Path: data -> result -> data -> completions
+        try {
+            Map<String, Object> data = (Map<String, Object>) jobResponse.get("data");
+            Map<String, Object> result = (Map<String, Object>) data.get("result");
+            Map<String, Object> resultData = (Map<String, Object>) result.get("data");
+            String completions = (String) resultData.get("completions");
+            if (completions != null) {
+                return completions;
+            }
+        } catch (ClassCastException | NullPointerException e) {
+            throw new IllegalStateException("Could not extract completions from job response: " + e.getMessage(), e);
+        }
+        throw new IllegalStateException("completions field missing from completed job response.");
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractJobError(Map<String, Object> jobResponse) {
+        try {
+            Map<String, Object> data = (Map<String, Object>) jobResponse.get("data");
+            if (data != null) {
+                Object message = data.get("message");
+                if (message instanceof String s) {
+                    return "LLM job failed: " + s;
+                }
+            }
+        } catch (ClassCastException e) {
+            // fall through to generic message
+        }
+        return "LLM job failed with ERROR status.";
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Polling interrupted while waiting for LLM job.", e);
+        }
     }
 }
 

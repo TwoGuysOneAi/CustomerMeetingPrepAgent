@@ -8,6 +8,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +18,10 @@ public class DocumentService {
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(20);
     private static final String DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; CustomerMeetingPrepAgent/1.0; +https://example.com/bot)";
+
+    // Matches Google Docs document URLs and captures the document ID
+    private static final Pattern GOOGLE_DOCS_PATTERN =
+            Pattern.compile("https://docs\\.google\\.com/document/d/([^/]+)(/.*)?");
 
     private final HttpClient httpClient;
 
@@ -41,7 +47,7 @@ public class DocumentService {
     }
 
     private String fetchDocument(String url, String fieldName) {
-        URI uri = parseAndValidate(url, fieldName);
+        URI uri = parseAndValidate(rewriteIfGoogleDoc(url), fieldName);
         HttpRequest request = HttpRequest.newBuilder(uri)
                 .timeout(REQUEST_TIMEOUT)
                 .header("User-Agent", DEFAULT_USER_AGENT)
@@ -76,6 +82,24 @@ public class DocumentService {
             throw new IllegalStateException("Fetched empty document from URL: " + uri);
         }
         return body;
+    }
+
+    /**
+     * Rewrites a Google Docs viewer URL to the plain-text export URL so the
+     * document content is returned instead of the browser-gated HTML page.
+     * e.g. https://docs.google.com/document/d/{ID}/edit
+     *   -> https://docs.google.com/document/d/{ID}/export?format=txt
+     */
+    private String rewriteIfGoogleDoc(String url) {
+        if (url == null) {
+            return url;
+        }
+        Matcher matcher = GOOGLE_DOCS_PATTERN.matcher(url.trim());
+        if (matcher.matches()) {
+            String docId = matcher.group(1);
+            return "https://docs.google.com/document/d/" + docId + "/export?format=txt";
+        }
+        return url;
     }
 
     private URI parseAndValidate(String url, String fieldName) {
