@@ -4,6 +4,8 @@ import './InputPanel.css';
 export default function InputPanel({ onSubmit, isDisabled }) {
   const [customerName, setCustomerName] = useState('');
   const [meetingContext, setMeetingContext] = useState('');
+  const [previousMeetingNotes, setPreviousMeetingNotes] = useState('');
+  const [showPreviousMeetingNotes, setShowPreviousMeetingNotes] = useState(false);
   const [problemUrl, setProblemUrl] = useState('');
   const [urls, setUrls] = useState(['']);
 
@@ -22,7 +24,7 @@ export default function InputPanel({ onSubmit, isDisabled }) {
   function handleSubmit(e) {
     e.preventDefault();
     const validUrls = urls.filter((u) => u.trim() !== '');
-    onSubmit({ customerName: customerName.trim(), meetingContext: meetingContext.trim(), problemUrl: problemUrl.trim(), urls: validUrls });
+    onSubmit({ customerName: customerName.trim(), meetingContext: meetingContext.trim(), previousMeetingNotes: previousMeetingNotes.trim(), problemUrl: problemUrl.trim(), urls: validUrls });
   }
 
   const canSubmit =
@@ -59,6 +61,30 @@ export default function InputPanel({ onSubmit, isDisabled }) {
           disabled={isDisabled}
           required
         />
+      </div>
+
+      <div className="input-panel__field input-panel__collapsible">
+        <button
+          type="button"
+          className={`collapsible-toggle${showPreviousMeetingNotes ? ' collapsible-toggle--open' : ''}`}
+          onClick={() => setShowPreviousMeetingNotes((v) => !v)}
+          disabled={isDisabled}
+          aria-expanded={showPreviousMeetingNotes}
+        >
+          <span>Previous Meeting Notes</span>
+          <span className="optional">(optional)</span>
+          <span className="collapsible-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        {showPreviousMeetingNotes && (
+          <textarea
+            id="previous-meeting-notes"
+            placeholder="Summarise key decisions, action items, or context from prior meetings…"
+            rows={5}
+            value={previousMeetingNotes}
+            onChange={(e) => setPreviousMeetingNotes(e.target.value)}
+            disabled={isDisabled}
+          />
+        )}
       </div>
 
       <div className="input-panel__field">

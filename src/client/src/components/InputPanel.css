@@ -138,3 +138,85 @@
   cursor: not-allowed;
 }
 
+/* Collapsible section */
+.input-panel__collapsible {
+  gap: 0;
+}
+
+.collapsible-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: 100%;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.collapsible-toggle:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.collapsible-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.collapsible-toggle--open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.collapsible-toggle .optional {
+  font-weight: 400;
+  text-transform: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.collapsible-toggle__chevron {
+  margin-left: auto;
+  font-size: 1rem;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.collapsible-toggle--open .collapsible-toggle__chevron {
+  transform: rotate(180deg);
+}
+
+.input-panel__collapsible textarea {
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.input-panel__collapsible textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.input-panel__collapsible textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
