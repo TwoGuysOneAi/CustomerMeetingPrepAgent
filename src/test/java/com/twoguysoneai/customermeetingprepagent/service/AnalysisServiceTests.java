@@ -73,7 +73,7 @@ class AnalysisServiceTests {
         private String lastPrompt;
 
         private CapturingLlmClient() {
-            super(null, "", "");
+            super(null, "", "", 1, 0);
         }
 
         @Override
