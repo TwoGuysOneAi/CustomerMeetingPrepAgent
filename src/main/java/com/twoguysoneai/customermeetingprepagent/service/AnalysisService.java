@@ -16,7 +16,8 @@ public class AnalysisService {
         this.llmClient = llmClient;
     }
 
-    public String analyze(String problemUrl, List<String> contextUrls) {
+    public String analyze(String customerName, String meetingContext, String previousMeetingNotes,
+                          String problemUrl, List<String> contextUrls) {
         if (contextUrls == null || contextUrls.isEmpty()) {
             throw new IllegalArgumentException("contextUrls must contain at least one URL");
         }
@@ -26,39 +27,61 @@ public class AnalysisService {
                 .map(documentService::fetchContextDocument)
                 .map(this::cleanForLlm)
                 .toList();
-        String prompt = buildPrompt(problemDocument, contextDocuments);
+        String prompt = buildPrompt(customerName, meetingContext, previousMeetingNotes, problemDocument, contextDocuments);
         return llmClient.call(prompt);
     }
 
-    private String buildPrompt(String problemDocument, List<String> contextDocuments) {
+    private String buildPrompt(String customerName, String meetingContext, String previousMeetingNotes,
+                                String problemDocument, List<String> contextDocuments) {
         String formattedContextDocuments = formatContextDocuments(contextDocuments);
 
-        return """
-                You are a solution analyst. Analyze the documents below and provide a structured response.
+        String previousMeetingSection = (previousMeetingNotes != null && !previousMeetingNotes.isBlank())
+                ? "\n=== PREVIOUS MEETING NOTES ===\n" + previousMeetingNotes.trim() + "\n"
+                : "";
 
-                === PROBLEM ===
+        return """
+                You are a customer meeting preparation analyst. Analyze the documents below and produce a structured pre-meeting briefing.
+
+                === CUSTOMER ===
                 %s
 
-                === CONTEXT ===
+                === MEETING CONTEXT & GOALS ===
+                %s
+                %s
+                === PROBLEM DOCUMENT ===
+                %s
+
+                === CONTEXT DOCUMENTS ===
                 %s
 
                 Produce your response in exactly the following sections:
 
-                1. Problem Summary
-                   A concise summary of the core problem.
+                1. Customer Snapshot
+                   A brief overview of the customer and the relationship stage.
 
-                2. Key Challenges
+                2. Meeting Goals
+                   What success looks like for this meeting, based on the stated context and goals.
+
+                3. Problem Summary
+                   A concise summary of the core problem described in the problem document.
+
+                4. Key Challenges
                    A bulleted list of the main challenges identified.
 
-                3. Mapping of Features to Problem
-                   For each feature in the context document, explain how it relates to the problem.
+                5. Mapping of Context to Problem
+                   For each piece of context provided, explain how it relates to the problem or meeting goals.
 
-                4. Proposed Solution
-                   A clear, actionable solution recommendation.
+                6. Proposed Talking Points
+                   A clear, structured set of talking points or recommendations tailored to this customer and meeting.
 
-                5. Risks / Gaps
-                   Known risks or missing information that could affect the solution.
-                """.formatted(problemDocument, formattedContextDocuments);
+                7. Risks / Gaps
+                   Known risks, open questions, or missing information that could affect the meeting outcome.
+                """.formatted(
+                        customerName != null ? customerName : "Unknown",
+                        meetingContext != null ? meetingContext : "",
+                        previousMeetingSection,
+                        problemDocument,
+                        formattedContextDocuments);
     }
 
     private String formatContextDocuments(List<String> contextDocuments) {
