@@ -9,7 +9,7 @@ const SIGNAL_LABELS = {
   renewal_risk:    'Renewal Risk',
 };
 
-export default function CustomerSnapshot({ customer, relationshipStage, healthSignals, summary }) {
+export default function CustomerSnapshot({ customer, healthSignals, summary }) {
   const [open, setOpen] = useState(true);
 
   const pills = Object.entries(SIGNAL_LABELS)
@@ -27,9 +27,6 @@ export default function CustomerSnapshot({ customer, relationshipStage, healthSi
         <div className="section-card__body">
           {/* Relationship stage + health pills */}
           <div className="snapshot-meta">
-            {relationshipStage && relationshipStage !== '—' && (
-              <span className="relationship-badge">{relationshipStage}</span>
-            )}
             <div className="signal-grid">
               {pills.map(({ key, label, value }) => (
                 <span key={key} className={`signal-pill signal-pill--${LEVEL_CLASS[value] ?? 'medium'}`}>
