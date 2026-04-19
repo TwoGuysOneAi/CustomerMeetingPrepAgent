@@ -21,7 +21,12 @@ public class AnalysisController {
 
     @PostMapping
     public ResponseEntity<AnalysisResponse> analyze(@RequestBody AnalysisRequest request) {
-        String output = analysisService.analyze(request.getProblemUrl(), request.getContextUrls());
+        String output = analysisService.analyze(
+                request.getCustomerName(),
+                request.getMeetingContext(),
+                request.getPreviousMeetingNotes(),
+                request.getProblemUrl(),
+                request.getContextUrls());
         return ResponseEntity.ok(new AnalysisResponse(output));
     }
 }

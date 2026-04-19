@@ -18,7 +18,7 @@ class AnalysisServiceTests {
         CapturingLlmClient llmClient = new CapturingLlmClient();
         AnalysisService analysisService = new AnalysisService(documentService, llmClient);
 
-        analysisService.analyze("https://problem", List.of("https://context"));
+        analysisService.analyze("Acme Corp", "Renewal meeting", null, "https://problem", List.of("https://context"));
 
         String prompt = llmClient.lastPrompt;
         assertTrue(prompt.contains("Problem A"));
@@ -32,7 +32,7 @@ class AnalysisServiceTests {
     void analyze_rejectsEmptyContextUrls() {
         AnalysisService analysisService = new AnalysisService(new StubDocumentService("problem", "context"), new CapturingLlmClient());
 
-        assertThrows(IllegalArgumentException.class, () -> analysisService.analyze("https://problem", List.of()));
+        assertThrows(IllegalArgumentException.class, () -> analysisService.analyze("Acme", "context", null, "https://problem", List.of()));
     }
 
     @Test
@@ -42,9 +42,55 @@ class AnalysisServiceTests {
         CapturingLlmClient llmClient = new CapturingLlmClient();
         AnalysisService analysisService = new AnalysisService(documentService, llmClient);
 
-        analysisService.analyze("https://problem", List.of("https://context"));
+        analysisService.analyze("Acme Corp", "Renewal meeting", null, "https://problem", List.of("https://context"));
 
         assertTrue(llmClient.lastPrompt.contains("[Truncated for prompt size. Original content was longer.]"));
+    }
+
+    @Test
+    void analyze_includesCustomerNameAndMeetingContextInPrompt() {
+        StubDocumentService documentService = new StubDocumentService("problem doc", "context doc");
+        CapturingLlmClient llmClient = new CapturingLlmClient();
+        AnalysisService analysisService = new AnalysisService(documentService, llmClient);
+
+        analysisService.analyze("Globex Corporation", "Q2 renewal discussion", null, "https://problem", List.of("https://context"));
+
+        String prompt = llmClient.lastPrompt;
+        assertTrue(prompt.contains("Globex Corporation"));
+        assertTrue(prompt.contains("Q2 renewal discussion"));
+    }
+
+    @Test
+    void analyze_includesPreviousMeetingNotesInPromptWhenProvided() {
+        StubDocumentService documentService = new StubDocumentService("problem doc", "context doc");
+        CapturingLlmClient llmClient = new CapturingLlmClient();
+        AnalysisService analysisService = new AnalysisService(documentService, llmClient);
+
+        analysisService.analyze("Globex Corporation", "Q2 renewal", "Last time we discussed pricing concerns.", "https://problem", List.of("https://context"));
+
+        assertTrue(llmClient.lastPrompt.contains("Last time we discussed pricing concerns."));
+    }
+
+    @Test
+    void analyze_omitsPreviousMeetingNotesSectionWhenBlank() {
+        StubDocumentService documentService = new StubDocumentService("problem doc", "context doc");
+        CapturingLlmClient llmClient = new CapturingLlmClient();
+        AnalysisService analysisService = new AnalysisService(documentService, llmClient);
+
+        analysisService.analyze("Globex Corporation", "Q2 renewal", "", "https://problem", List.of("https://context"));
+
+        assertTrue(!llmClient.lastPrompt.contains("PREVIOUS MEETING NOTES"));
+    }
+
+    @Test
+    void analyze_omitsPreviousMeetingNotesSectionWhenNull() {
+        StubDocumentService documentService = new StubDocumentService("problem doc", "context doc");
+        CapturingLlmClient llmClient = new CapturingLlmClient();
+        AnalysisService analysisService = new AnalysisService(documentService, llmClient);
+
+        analysisService.analyze("Globex Corporation", "Q2 renewal", null, "https://problem", List.of("https://context"));
+
+        assertTrue(!llmClient.lastPrompt.contains("PREVIOUS MEETING NOTES"));
     }
 
     private static class StubDocumentService extends DocumentService {
