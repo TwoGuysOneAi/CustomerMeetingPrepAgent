@@ -52,3 +52,12 @@
 ## Skills
 
 Agent skills (triggered workflows) are defined in [SKILLS.md](.github/SKILLS.md).
+
+### ⚠️ Mandatory Skill Compliance Rules
+
+1. **Always check skills first.** Before acting on any user request, read `.github/SKILLS.md` to check if a skill trigger matches the request.
+2. **Read the full skill script.** If a trigger matches, read the corresponding `.yaml` file in `.github/scripts/` in full before taking any action.
+3. **Execute every step in order.** Follow each `run` and `instruction` step exactly as defined — do not skip, reorder, or substitute steps.
+4. **Never shortcut the workflow.** For example, the `git push changes` skill requires a feature branch and a pull request — never push directly to `master`.
+5. **Treat skill steps as hard rules**, not suggestions. If a step cannot be completed, report the failure to the user rather than silently skipping it.
+
