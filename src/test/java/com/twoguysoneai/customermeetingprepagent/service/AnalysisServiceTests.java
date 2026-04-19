@@ -94,7 +94,7 @@ class AnalysisServiceTests {
     }
 
     @Test
-    void analyze_promptContainsAllTenSectionHeadings() {
+    void analyze_promptContainsJsonSchemaKeys() {
         StubDocumentService documentService = new StubDocumentService("problem doc", "context doc");
         CapturingLlmClient llmClient = new CapturingLlmClient();
         AnalysisService analysisService = new AnalysisService(documentService, llmClient);
@@ -102,15 +102,29 @@ class AnalysisServiceTests {
         analysisService.analyze("Globex Corporation", "Q2 renewal", "Previous notes.", "https://problem", List.of("https://context"));
 
         String prompt = llmClient.lastPrompt;
-        assertTrue(prompt.contains("Customer Snapshot"));
-        assertTrue(prompt.contains("Meeting Goals"));
-        assertTrue(prompt.contains("Gaps"));
-        assertTrue(prompt.contains("What Changed Since Last Meeting"));
-        assertTrue(prompt.contains("What Matters Now"));
-        assertTrue(prompt.contains("Mapping of Context to Problem"));
-        assertTrue(prompt.contains("Top Risks / Opportunities"));
-        assertTrue(prompt.contains("Suggested Talking Points"));
-        assertTrue(prompt.contains("Recommended Next Actions"));
+        assertTrue(prompt.contains("customer_snapshot"));
+        assertTrue(prompt.contains("meeting_goals"));
+        assertTrue(prompt.contains("gaps"));
+        assertTrue(prompt.contains("problem_summary"));
+        assertTrue(prompt.contains("context_changes"));
+        assertTrue(prompt.contains("what_matters_now"));
+        assertTrue(prompt.contains("problem_mapping"));
+        assertTrue(prompt.contains("risks_and_opportunities"));
+        assertTrue(prompt.contains("talking_points"));
+        assertTrue(prompt.contains("next_actions"));
+    }
+
+    @Test
+    void analyze_promptInstructsLlmToReturnJsonOnly() {
+        StubDocumentService documentService = new StubDocumentService("problem doc", "context doc");
+        CapturingLlmClient llmClient = new CapturingLlmClient();
+        AnalysisService analysisService = new AnalysisService(documentService, llmClient);
+
+        analysisService.analyze("Globex Corporation", "Q2 renewal", null, "https://problem", List.of("https://context"));
+
+        String prompt = llmClient.lastPrompt;
+        assertTrue(prompt.contains("Return ONLY the JSON object"));
+        assertTrue(prompt.contains("No markdown"));
     }
 
     @Test

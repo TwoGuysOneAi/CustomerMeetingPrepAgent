@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './sections.css';
 
-export default function ProblemAnalysis({ summaryText, mappingText }) {
+export default function ProblemAnalysis({ summary, mapping }) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -16,14 +16,25 @@ export default function ProblemAnalysis({ summaryText, mappingText }) {
           <div className="flow-diagram">
             <div className="flow-node">
               <div className="flow-node__label">Problem Summary</div>
-              <div className="flow-node__content">{summaryText || '—'}</div>
+              <div className="flow-node__content">{summary}</div>
             </div>
-            {mappingText && (
+            {mapping.length > 0 && (
               <>
                 <div className="flow-arrow">↓</div>
                 <div className="flow-node">
                   <div className="flow-node__label">Context Mapping</div>
-                  <div className="flow-node__content">{mappingText}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {mapping.map((item, i) => {
+                      const source = typeof item === 'string' ? item : item.context_source ?? `Source ${i + 1}`;
+                      const relevance = typeof item === 'object' ? item.relevance : null;
+                      return (
+                        <div key={i} style={{ paddingBottom: i < mapping.length - 1 ? 10 : 0, borderBottom: i < mapping.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 3 }}>{source}</div>
+                          {relevance && <div className="flow-node__content">{relevance}</div>}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </>
             )}
@@ -33,4 +44,3 @@ export default function ProblemAnalysis({ summaryText, mappingText }) {
     </div>
   );
 }
-

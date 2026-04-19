@@ -1,31 +1,9 @@
 import { useState } from 'react';
 import './sections.css';
 
-function splitPreviousCurrent(text) {
-  if (!text) return { previous: '', current: '', events: [] };
-
-  const lines = text.split('\n').filter(l => l.trim());
-  let previous = '', current = '';
-  const events = [];
-  let mode = 'events';
-
-  for (const line of lines) {
-    if (/previous state|initial state|baseline/i.test(line)) { mode = 'previous'; continue; }
-    if (/current state|updated state|current understanding/i.test(line)) { mode = 'current'; continue; }
-    if (/transition|milestone|event|key change/i.test(line)) { mode = 'events'; continue; }
-    if (mode === 'previous') previous += line + '\n';
-    else if (mode === 'current') current += line + '\n';
-    else events.push(line.replace(/^[-•*]\s*/, '').trim());
-  }
-
-  // Fallback: use full text in current state
-  if (!previous && !current) return { previous: '', current: text, events: [] };
-  return { previous: previous.trim(), current: current.trim(), events };
-}
-
-export default function ContextChanges({ text }) {
+export default function ContextChanges({ data }) {
   const [open, setOpen] = useState(true);
-  const { previous, current, events } = splitPreviousCurrent(text);
+  const { previous_state, current_state, key_events = [] } = data;
 
   return (
     <div className="section-card" id="section-context-changes">
@@ -37,26 +15,27 @@ export default function ContextChanges({ text }) {
       {open && (
         <div className="section-card__body">
           <div className="timeline">
-            {previous && (
+            {previous_state && (
               <div className="timeline-event timeline-event--previous">
                 <div className="timeline-event__label">Previous State</div>
-                <div className="timeline-event__content">{previous}</div>
+                <div className="timeline-event__content">{previous_state}</div>
               </div>
             )}
-            {events.map((e, i) => (
+            {key_events.map((e, i) => (
               <div key={i} className="timeline-event">
                 <div className="timeline-event__label">Event {i + 1}</div>
                 <div className="timeline-event__content">{e}</div>
               </div>
             ))}
-            <div className="timeline-event timeline-event--current">
-              <div className="timeline-event__label">Current State</div>
-              <div className="timeline-event__content">{current || text || '—'}</div>
-            </div>
+            {current_state && (
+              <div className="timeline-event timeline-event--current">
+                <div className="timeline-event__label">Current State</div>
+                <div className="timeline-event__content">{current_state}</div>
+              </div>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
-

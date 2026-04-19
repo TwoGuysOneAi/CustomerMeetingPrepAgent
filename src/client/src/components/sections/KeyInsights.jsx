@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { extractBullets } from '../../utils/parseBriefingUtils.js';
 import './sections.css';
 
-export default function KeyInsights({ text }) {
+export default function KeyInsights({ data }) {
   const [open, setOpen] = useState(true);
-  const bullets = extractBullets(text);
-  const insights = bullets.length > 0 ? bullets : (text ? [text] : []);
+  const { headline, detail } = data;
 
   return (
     <div className="section-card" id="section-key-insights">
@@ -16,21 +14,14 @@ export default function KeyInsights({ text }) {
       </button>
       {open && (
         <div className="section-card__body">
-          <div className="insights-grid">
-            {insights.map((insight, i) => {
-              const [title, ...rest] = insight.split(':');
-              const hasTitle = rest.length > 0 && title.length < 60;
-              return (
-                <div key={i} className="insight-card">
-                  {hasTitle && <div className="insight-card__title">{title.trim()}</div>}
-                  <div className="insight-card__body">{hasTitle ? rest.join(':').trim() : insight}</div>
-                </div>
-              );
-            })}
-          </div>
+          {headline && (
+            <div className="insight-card">
+              <div className="insight-card__title">{headline}</div>
+              {detail && <div className="insight-card__body">{detail}</div>}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
-

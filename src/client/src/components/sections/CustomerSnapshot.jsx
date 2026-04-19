@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { inferHealthIndicators } from '../../utils/parseBriefingUtils.js';
 import './sections.css';
 
+const LEVEL_CLASS = { Low: 'low', Medium: 'medium', High: 'high', Critical: 'high' };
+
 const SIGNAL_LABELS = {
-  riskLevel:      'Risk Level',
-  businessImpact: 'Business Impact',
-  renewalRisk:    'Renewal Risk',
+  risk_level:      'Risk Level',
+  business_impact: 'Business Impact',
+  renewal_risk:    'Renewal Risk',
 };
 
-export default function CustomerSnapshot({ text }) {
+export default function CustomerSnapshot({ customer, relationshipStage, healthSignals, summary }) {
   const [open, setOpen] = useState(true);
-  const indicators = inferHealthIndicators(text);
+
+  const pills = Object.entries(SIGNAL_LABELS)
+    .map(([key, label]) => ({ key, label, value: healthSignals[key] }))
+    .filter(({ value }) => value);
 
   return (
     <div className="section-card" id="section-customer-snapshot">
@@ -21,18 +25,29 @@ export default function CustomerSnapshot({ text }) {
       </button>
       {open && (
         <div className="section-card__body">
-          <div className="signal-grid">
-            {Object.entries(indicators).map(([key, val]) => (
-              <div key={key} className={`signal-pill signal-pill--${val}`}>
-                <span className="signal-pill__label">{SIGNAL_LABELS[key]}</span>
-                <span className="signal-pill__value">{val.charAt(0).toUpperCase() + val.slice(1)}</span>
-              </div>
-            ))}
+          {/* Relationship stage + health pills */}
+          <div className="snapshot-meta">
+            {relationshipStage && relationshipStage !== '—' && (
+              <span className="relationship-badge">{relationshipStage}</span>
+            )}
+            <div className="signal-grid">
+              {pills.map(({ key, label, value }) => (
+                <span key={key} className={`signal-pill signal-pill--${LEVEL_CLASS[value] ?? 'medium'}`}>
+                  <span className="signal-pill__label">{label}:</span>
+                  <span className="signal-pill__value">{value}</span>
+                </span>
+              ))}
+            </div>
           </div>
-          <p className="section-prose">{text || '—'}</p>
+
+          {/* Risk alert banner */}
+          {healthSignals.risk_alert && (
+            <div className="risk-alert-banner">⚠ {healthSignals.risk_alert}</div>
+          )}
+
+          <p className="section-prose">{summary}</p>
         </div>
       )}
     </div>
   );
 }
-
