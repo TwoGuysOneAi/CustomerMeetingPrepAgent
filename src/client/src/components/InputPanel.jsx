@@ -4,6 +4,7 @@ import './InputPanel.css';
 export default function InputPanel({ onSubmit, isDisabled }) {
   const [customerName, setCustomerName] = useState('');
   const [meetingContext, setMeetingContext] = useState('');
+  const [problemUrl, setProblemUrl] = useState('');
   const [urls, setUrls] = useState(['']);
 
   function addUrl() {
@@ -21,10 +22,14 @@ export default function InputPanel({ onSubmit, isDisabled }) {
   function handleSubmit(e) {
     e.preventDefault();
     const validUrls = urls.filter((u) => u.trim() !== '');
-    onSubmit({ customerName: customerName.trim(), meetingContext: meetingContext.trim(), urls: validUrls });
+    onSubmit({ customerName: customerName.trim(), meetingContext: meetingContext.trim(), problemUrl: problemUrl.trim(), urls: validUrls });
   }
 
-  const canSubmit = customerName.trim() && meetingContext.trim() && !isDisabled;
+  const canSubmit =
+    customerName.trim().length > 0 &&
+    urls.length > 0 &&
+    problemUrl.trim().length > 0 &&
+    !isDisabled;
 
   return (
     <form className="input-panel" onSubmit={handleSubmit}>
@@ -57,7 +62,20 @@ export default function InputPanel({ onSubmit, isDisabled }) {
       </div>
 
       <div className="input-panel__field">
-        <label>Reference URLs <span className="optional">(optional)</span></label>
+        <label htmlFor="problem-url">Problem URL</label>
+        <input
+          id="problem-url"
+          type="url"
+          placeholder="https://… (link to the problem document)"
+          value={problemUrl}
+          onChange={(e) => setProblemUrl(e.target.value)}
+          disabled={isDisabled}
+          required
+        />
+      </div>
+
+      <div className="input-panel__field">
+        <label>Context URLs <span className="optional">(optional)</span></label>
         <div className="url-list">
           {urls.map((url, i) => (
             <div key={i} className="url-row">

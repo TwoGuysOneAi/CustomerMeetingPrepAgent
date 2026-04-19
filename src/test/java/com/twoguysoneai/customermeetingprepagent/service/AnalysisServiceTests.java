@@ -53,6 +53,7 @@ class AnalysisServiceTests {
         private final String contextDocument;
 
         private StubDocumentService(String problemDocument, String contextDocument) {
+            super(5, 10);
             this.problemDocument = problemDocument;
             this.contextDocument = contextDocument;
         }

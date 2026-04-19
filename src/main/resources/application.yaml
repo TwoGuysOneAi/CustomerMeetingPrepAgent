@@ -10,5 +10,10 @@ llm:
     max-attempts: 30
     interval-ms: 2000
 
+document:
+  http:
+    connect-timeout-seconds: 15
+    request-timeout-seconds: 60
+
 server:
   port: 8081
