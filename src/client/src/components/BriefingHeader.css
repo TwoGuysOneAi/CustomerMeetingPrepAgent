@@ -1,0 +1,99 @@
+.briefing-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.briefing-header__identity { flex: 1; min-width: 200px; }
+
+.briefing-header__name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.briefing-header__sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+}
+
+/* Status badge */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.status-badge--normal   { background: #dcfce7; color: #16a34a; }
+.status-badge--elevated { background: #fef9c3; color: #ca8a04; }
+.status-badge--critical { background: #fee2e2; color: #dc2626; }
+.status-badge--blocked  { background: #e9d5ff; color: #7c3aed; }
+
+/* Health indicators row */
+.briefing-header__health {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.health-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.health-chip__label { color: var(--text-muted); font-weight: 400; }
+
+.health-chip--high   { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+.health-chip--medium { background: #fefce8; border-color: #fde68a; color: #ca8a04; }
+.health-chip--low    { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
+.health-chip--positive { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
+.health-chip--negative { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+.health-chip--neutral  { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+
+/* Header actions */
+.briefing-header__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hdr-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.hdr-btn:hover:not(:disabled) { background: var(--bg); border-color: var(--accent); color: var(--accent); }
+.hdr-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.hdr-btn--primary { background: var(--accent); color: white; border-color: var(--accent); }
+.hdr-btn--primary:hover:not(:disabled) { background: var(--accent-dark); border-color: var(--accent-dark); color: white; }
+
