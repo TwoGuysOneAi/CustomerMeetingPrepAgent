@@ -80,7 +80,6 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
         <main className="briefing-layout__main" ref={mainRef}>
           <CustomerSnapshot
             customer={asString(snapshot.customer, briefing.customerName)}
-            relationshipStage={asString(snapshot.relationship_stage)}
             healthSignals={snapshot.health_signals ?? {}}
             summary={asString(snapshot.summary)}
           />
