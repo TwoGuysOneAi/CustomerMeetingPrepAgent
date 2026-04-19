@@ -12,7 +12,8 @@ public class AnalysisRequest {
 
     public AnalysisRequest() {}
 
-    public AnalysisRequest(String customerName, String meetingContext, String previousMeetingNotes, String problemUrl, List<String> contextUrls) {
+    public AnalysisRequest(String customerName, String meetingContext, String previousMeetingNotes,
+                           String problemUrl, List<String> contextUrls) {
         this.customerName = customerName;
         this.meetingContext = meetingContext;
         this.previousMeetingNotes = previousMeetingNotes;

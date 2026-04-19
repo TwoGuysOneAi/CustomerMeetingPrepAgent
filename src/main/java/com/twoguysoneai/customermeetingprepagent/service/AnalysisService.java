@@ -39,6 +39,12 @@ public class AnalysisService {
                 ? "\n=== PREVIOUS MEETING NOTES ===\n" + previousMeetingNotes.trim() + "\n"
                 : "";
 
+        String previousMeetingInstruction = (previousMeetingNotes != null && !previousMeetingNotes.isBlank())
+                ? "5. What Changed Since Last Meeting\n" +
+                  "   Based on the previous meeting notes, summarise what has changed, progressed, or been resolved since the last meeting. Include a brief recent interactions summary.\n"
+                : "5. What Changed Since Last Meeting\n" +
+                  "   No previous meeting notes were provided. State that this appears to be a first meeting or no prior context is available.\n";
+
         return """
                 You are a customer meeting preparation analyst. Analyze the documents below and produce a structured pre-meeting briefing.
 
@@ -54,34 +60,39 @@ public class AnalysisService {
                 === CONTEXT DOCUMENTS ===
                 %s
 
-                Produce your response in exactly the following sections:
+                Produce your response in EXACTLY the following 10 sections, using these exact headings:
 
                 1. Customer Snapshot
-                   A brief overview of the customer and the relationship stage.
+                   A brief overview of the customer, relationship stage, and any notable customer health signals (e.g. sentiment, engagement level, renewal risk, growth indicators).
 
                 2. Meeting Goals
-                   What success looks like for this meeting, based on the stated context and goals.
+                   What success looks like for this meeting based on the stated context and goals. Be specific and outcome-oriented.
 
-                3. Problem Summary
-                   A concise summary of the core problem described in the problem document.
+                3. Gaps
+                   List any opening questions or missing information that should be clarified at the start of the meeting to ensure it stays on track.
 
-                4. Key Challenges
-                   A bulleted list of the main challenges identified.
+                %s
+                6. What Matters Now
+                   Based on all available context, what is the single most important thing this customer cares about right now? Frame it from their perspective.
 
-                5. Mapping of Context to Problem
-                   For each piece of context provided, explain how it relates to the problem or meeting goals.
+                7. Mapping of Context to Problem
+                   For each piece of context provided, explain how it directly relates to the problem or the meeting goals.
 
-                6. Proposed Talking Points
-                   A clear, structured set of talking points or recommendations tailored to this customer and meeting.
+                8. Top Risks / Opportunities
+                   A concise list of the most important risks to be aware of and the biggest opportunities to capitalise on in this meeting.
 
-                7. Risks / Gaps
-                   Known risks, open questions, or missing information that could affect the meeting outcome.
+                9. Suggested Talking Points
+                   A structured set of specific, customer-tailored talking points to guide the conversation. Prioritise by importance.
+
+                10. Recommended Next Actions
+                    Concrete follow-up actions to propose at the end of the meeting, with suggested owners where possible.
                 """.formatted(
                         customerName != null ? customerName : "Unknown",
                         meetingContext != null ? meetingContext : "",
                         previousMeetingSection,
                         problemDocument,
-                        formattedContextDocuments);
+                        formattedContextDocuments,
+                        previousMeetingInstruction);
     }
 
     private String formatContextDocuments(List<String> contextDocuments) {
