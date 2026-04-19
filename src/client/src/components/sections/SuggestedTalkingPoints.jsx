@@ -27,7 +27,13 @@ export default function SuggestedTalkingPoints({ text }) {
           <div className="phases-list">
             {phases.map((phase, i) => (
               <div key={i} className="phase-block">
-                <button className="phase-block__header" onClick={() => togglePhase(i)}>
+                <div
+                  className="phase-block__header"
+                  onClick={() => togglePhase(i)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && togglePhase(i)}
+                >
                   <span className="phase-block__label">{phase.label}</span>
                   {phase.time && <span className="phase-block__time">{phase.time}</span>}
                   <button
@@ -38,7 +44,7 @@ export default function SuggestedTalkingPoints({ text }) {
                     📋 Copy
                   </button>
                   <span className="section-card__chevron">{expandedPhases[i] ? '▲' : '▼'}</span>
-                </button>
+                </div>
                 {expandedPhases[i] && (
                   <div className="phase-block__content">{phase.content}</div>
                 )}
