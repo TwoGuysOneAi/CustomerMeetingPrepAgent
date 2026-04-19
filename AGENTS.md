@@ -30,6 +30,7 @@
     - Use PascalCase for all class files (e.g., `CustomerMeetingPrepAgentApplication.java`).
     - Test class names should mirror the class they test and be suffixed with `Tests` (e.g., `CustomerMeetingPrepAgentApplicationTests.java` for `CustomerMeetingPrepAgentApplication.java`).
     - Integration test classes should be suffixed with `Int` (e.g., `UserServiceInt.java` for integration tests related to `UserService.java`).
+- After updating java/react code, update any relevant tests
 
 ## Developer Workflows
 - Run tests with Maven Wrapper from project root:

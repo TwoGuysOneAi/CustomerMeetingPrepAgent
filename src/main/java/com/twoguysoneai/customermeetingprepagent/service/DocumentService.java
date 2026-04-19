@@ -6,17 +6,17 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DocumentService {
 
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(20);
     private static final String DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; CustomerMeetingPrepAgent/1.0; +https://example.com/bot)";
 
     // Matches Google Docs document URLs and captures the document ID
@@ -24,11 +24,15 @@ public class DocumentService {
             Pattern.compile("https://docs\\.google\\.com/document/d/([^/]+)(/.*)?");
 
     private final HttpClient httpClient;
+    private final Duration requestTimeout;
 
-    public DocumentService() {
+    public DocumentService(
+            @Value("${document.http.connect-timeout-seconds:15}") int connectTimeoutSeconds,
+            @Value("${document.http.request-timeout-seconds:60}") int requestTimeoutSeconds) {
+        this.requestTimeout = Duration.ofSeconds(requestTimeoutSeconds);
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(CONNECT_TIMEOUT)
-                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+                .followRedirects(HttpClient.Redirect.ALWAYS)
                 .build();
     }
 
@@ -49,7 +53,7 @@ public class DocumentService {
     private String fetchDocument(String url, String fieldName) {
         URI uri = parseAndValidate(rewriteIfGoogleDoc(url), fieldName);
         HttpRequest request = HttpRequest.newBuilder(uri)
-                .timeout(REQUEST_TIMEOUT)
+                .timeout(requestTimeout)
                 .header("User-Agent", DEFAULT_USER_AGENT)
                 .header("Accept", "text/plain, text/html, application/json, */*")
                 .GET()
@@ -58,6 +62,11 @@ public class DocumentService {
         HttpResponse<String> response;
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (HttpTimeoutException ex) {
+            throw new IllegalStateException(
+                    "Timed out fetching document from: " + uri +
+                    ". If this is a Google Doc, ensure it is shared as 'Anyone with the link can view' " +
+                    "and that the server has outbound internet access to docs.google.com.", ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while fetching document from URL: " + uri, ex);
@@ -68,8 +77,8 @@ public class DocumentService {
         if (response.statusCode() < 200 || response.statusCode() > 299) {
             if (response.statusCode() == 403) {
                 throw new IllegalStateException(
-                        "Failed to fetch document from URL: " + uri +
-                                " (HTTP 403 - remote host denied request, often due to missing/blocked user-agent)"
+                        "Access denied (HTTP 403) fetching document from: " + uri +
+                        ". For Google Docs, set sharing to 'Anyone with the link can view'."
                 );
             }
             throw new IllegalStateException(
@@ -81,6 +90,18 @@ public class DocumentService {
         if (body == null || body.isBlank()) {
             throw new IllegalStateException("Fetched empty document from URL: " + uri);
         }
+
+        // Google Docs redirects unauthenticated export requests to a login page.
+        // Detect this and surface a clear error instead of passing HTML to the LLM.
+        String finalUrl = response.uri().toString();
+        if (finalUrl.contains("accounts.google.com") || finalUrl.contains("google.com/sorry")) {
+            throw new IllegalStateException(
+                    "Google redirected to a login/consent page when fetching: " + uri +
+                    ". Ensure the document is shared as 'Anyone with the link can view' " +
+                    "and try opening the export URL in a browser: " + uri
+            );
+        }
+
         return body;
     }
 
