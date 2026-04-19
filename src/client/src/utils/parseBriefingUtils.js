@@ -133,12 +133,6 @@ export function inferHealthIndicators(text) {
     riskLevel: level(t,
       ['high risk', 'critical risk', 'significant risk'],
       ['low risk', 'minimal risk', 'stable', 'healthy']),
-    sentiment: /frustrated|dissatisfied|negative|unhappy|escalated|concerned/.test(t)
-      ? 'negative'
-      : /positive|satisfied|happy|pleased|optimistic/.test(t) ? 'positive' : 'neutral',
-    engagementLevel: level(t,
-      ['highly engaged', 'high engagement', 'very active'],
-      ['low engagement', 'disengaged', 'unresponsive']),
     businessImpact: level(t,
       ['critical impact', 'high impact', 'major impact'],
       ['low impact', 'minimal impact', 'minor']),

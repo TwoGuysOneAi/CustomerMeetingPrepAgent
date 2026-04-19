@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   parseBriefing, inferHealthIndicators, inferStatusBadge,
 } from '../utils/parseBriefingUtils.js';
@@ -23,7 +23,6 @@ const SECTION_IDS = [
 ];
 
 export default function BriefingLayout({ briefing, onReset, onExport, exporting }) {
-  const [viewMode, setViewMode] = useState('operational');
   const [activeSection, setActiveSection] = useState(SECTION_IDS[0]);
   const mainRef = useRef(null);
 
@@ -56,7 +55,7 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
   }, []);
 
   return (
-    <div className={`briefing-layout briefing-layout--${viewMode}`}>
+    <div className="briefing-layout">
       <BriefingHeader
         customerName={briefing.customerName}
         meetingContext={briefing.meetingContext}
@@ -79,7 +78,7 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
           <SuggestedTalkingPoints text={sections.talkingPoints} />
           <ActionPlan text={sections.actionPlan} />
         </main>
-        <RightPanel sections={sections} viewMode={viewMode} onViewModeChange={setViewMode} />
+        <RightPanel sections={sections} />
       </div>
     </div>
   );

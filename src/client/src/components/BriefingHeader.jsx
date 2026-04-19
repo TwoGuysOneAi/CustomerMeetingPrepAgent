@@ -2,8 +2,9 @@ import './BriefingHeader.css';
 
 const BADGE_LABELS = { Normal: 'Normal', Elevated: 'Elevated', Critical: 'Critical', Blocked: 'Blocked' };
 const HEALTH_LABELS = {
-  riskLevel: 'Risk', sentiment: 'Sentiment', engagementLevel: 'Engagement',
-  businessImpact: 'Impact', renewalRisk: 'Renewal',
+  riskLevel: 'Risk',
+  businessImpact: 'Impact',
+  renewalRisk: 'Renewal',
 };
 
 export default function BriefingHeader({ customerName, meetingContext, statusBadge, healthIndicators, onReset, onExport, exporting }) {
@@ -28,7 +29,6 @@ export default function BriefingHeader({ customerName, meetingContext, statusBad
       </div>
 
       <div className="briefing-header__actions">
-        <button className="hdr-btn hdr-btn--primary" onClick={() => alert('Meeting mode — coming soon!')}>▶ Start Meeting</button>
         <button className="hdr-btn" onClick={onExport} disabled={exporting}>{exporting ? 'Exporting…' : '⬇ Export'}</button>
         <button className="hdr-btn" onClick={onReset}>↩ New Briefing</button>
       </div>
