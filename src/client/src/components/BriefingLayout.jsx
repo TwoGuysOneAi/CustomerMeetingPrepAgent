@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { parseBriefing } from '../utils/parseBriefingUtils.js';
+import { parseBriefing, asArray, asString } from '../utils/parseBriefingUtils.js';
 import BriefingHeader from './BriefingHeader.jsx';
 import LeftNav from './LeftNav.jsx';
 import CustomerSnapshot from './sections/CustomerSnapshot.jsx';
@@ -23,7 +23,7 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
   const [activeSection, setActiveSection] = useState(SECTION_IDS[0]);
   const mainRef = useRef(null);
 
-  const sections = parseBriefing(briefing.output);
+  const data = parseBriefing(briefing.output);
 
   // Scroll-spy: highlight active nav item
   useEffect(() => {
@@ -49,10 +49,27 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
     return () => observer.disconnect();
   }, []);
 
+  // Fallback: if JSON parsing failed, show raw output
+  if (!data) {
+    return (
+      <div className="briefing-layout">
+        <BriefingHeader customerName={briefing.customerName} meetingContext={briefing.meetingContext} onReset={onReset} onExport={onExport} exporting={exporting} />
+        <div className="briefing-layout__body">
+          <main className="briefing-layout__main" style={{ maxWidth: 800, margin: '0 auto' }}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.9rem', lineHeight: 1.7 }}>{briefing.output}</pre>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  const snapshot = data.customer_snapshot ?? {};
+  const risksOpps = data.risks_and_opportunities ?? {};
+
   return (
     <div className="briefing-layout">
       <BriefingHeader
-        customerName={briefing.customerName}
+        customerName={asString(snapshot.customer, briefing.customerName)}
         meetingContext={briefing.meetingContext}
         onReset={onReset}
         onExport={onExport}
@@ -61,15 +78,26 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
       <div className="briefing-layout__body">
         <LeftNav activeSection={activeSection} />
         <main className="briefing-layout__main" ref={mainRef}>
-          <CustomerSnapshot text={sections.customerSnapshot} />
-          <MeetingGoals text={sections.meetingGoals} />
-          <GapsAndUnknowns text={sections.gaps} />
-          <ContextChanges text={sections.contextChanges} />
-          <KeyInsights text={sections.keyInsights} />
-          <ProblemAnalysis summaryText={sections.problemSummary} mappingText={sections.problemMapping} />
-          <RisksAndOpportunities text={sections.risksOpportunities} />
-          <SuggestedTalkingPoints text={sections.talkingPoints} />
-          <ActionPlan text={sections.actionPlan} />
+          <CustomerSnapshot
+            customer={asString(snapshot.customer, briefing.customerName)}
+            relationshipStage={asString(snapshot.relationship_stage)}
+            healthSignals={snapshot.health_signals ?? {}}
+            summary={asString(snapshot.summary)}
+          />
+          <MeetingGoals goals={asArray(data.meeting_goals)} />
+          <GapsAndUnknowns gaps={asArray(data.gaps)} />
+          <ContextChanges data={data.context_changes ?? {}} />
+          <KeyInsights data={data.what_matters_now ?? {}} />
+          <ProblemAnalysis
+            summary={asString(data.problem_summary)}
+            mapping={asArray(data.problem_mapping)}
+          />
+          <RisksAndOpportunities
+            risks={asArray(risksOpps.risks)}
+            opportunities={asArray(risksOpps.opportunities)}
+          />
+          <SuggestedTalkingPoints phases={asArray(data.talking_points)} />
+          <ActionPlan actions={asArray(data.next_actions)} />
         </main>
       </div>
     </div>

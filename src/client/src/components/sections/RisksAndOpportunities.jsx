@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { splitRisksOpportunities } from '../../utils/parseBriefingUtils.js';
 import './sections.css';
 
-export default function RisksAndOpportunities({ text }) {
+export default function RisksAndOpportunities({ risks, opportunities }) {
   const [open, setOpen] = useState(true);
-  const { risks, opportunities } = splitRisksOpportunities(text);
 
   return (
     <div className="section-card" id="section-risks-opportunities">
@@ -18,13 +16,15 @@ export default function RisksAndOpportunities({ text }) {
           <div className="risks-opps-grid">
             <div className="risks-col">
               <div className="risks-col__heading">⚠ Risks</div>
-              {risks.map((r, i) => <div key={i} className="risk-card">{r}</div>)}
-              {risks.length === 0 && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>None identified</span>}
+              {risks.length > 0
+                ? risks.map((r, i) => <div key={i} className="risk-card">{r}</div>)
+                : <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>None identified</span>}
             </div>
             <div className="opps-col">
               <div className="opps-col__heading">✦ Opportunities</div>
-              {opportunities.map((o, i) => <div key={i} className="opp-card">{o}</div>)}
-              {opportunities.length === 0 && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>None identified</span>}
+              {opportunities.length > 0
+                ? opportunities.map((o, i) => <div key={i} className="opp-card">{o}</div>)
+                : <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>None identified</span>}
             </div>
           </div>
         </div>
@@ -32,4 +32,3 @@ export default function RisksAndOpportunities({ text }) {
     </div>
   );
 }
-

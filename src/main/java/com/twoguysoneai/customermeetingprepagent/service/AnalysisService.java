@@ -39,14 +39,18 @@ public class AnalysisService {
                 ? "\n=== PREVIOUS MEETING NOTES ===\n" + previousMeetingNotes.trim() + "\n"
                 : "";
 
-        String previousMeetingInstruction = (previousMeetingNotes != null && !previousMeetingNotes.isBlank())
-                ? "5. What Changed Since Last Meeting\n" +
-                  "   Based on the previous meeting notes, summarise what has changed, progressed, or been resolved since the last meeting. Include a brief recent interactions summary.\n"
-                : "5. What Changed Since Last Meeting\n" +
-                  "   No previous meeting notes were provided. State that this appears to be a first meeting or no prior context is available.\n";
+        String contextChangesInstruction = (previousMeetingNotes != null && !previousMeetingNotes.isBlank())
+                ? "\"context_changes\": { \"previous_state\": \"<initial reported issue or baseline>\", \"current_state\": \"<updated understanding based on previous meeting notes>\", \"key_events\": [\"<key milestone or change 1>\"] }"
+                : "\"context_changes\": { \"previous_state\": null, \"current_state\": \"No previous meeting notes provided. This appears to be a first meeting.\", \"key_events\": [] }";
 
         return """
-                You are a customer meeting preparation analyst. Analyze the documents below and produce a structured pre-meeting briefing.
+                You are a customer meeting preparation analyst. Analyze the documents below and return a single valid JSON object.
+
+                CRITICAL RULES:
+                - Return ONLY the JSON object. No markdown, no code fences, no explanatory text before or after.
+                - Every string value must be plain text with no markdown formatting.
+                - Never omit a required key. Use null for unknown fields and [] for empty arrays.
+                - All enum values must exactly match the options listed.
 
                 === CUSTOMER ===
                 %s
@@ -60,39 +64,71 @@ public class AnalysisService {
                 === CONTEXT DOCUMENTS ===
                 %s
 
-                Produce your response in EXACTLY the following 10 sections, using these exact headings:
-
-                1. Customer Snapshot
-                   A brief overview of the customer, relationship stage, and any notable customer health signals (e.g. sentiment, engagement level, renewal risk, growth indicators).
-
-                2. Meeting Goals
-                   What success looks like for this meeting based on the stated context and goals. Be specific and outcome-oriented.
-
-                3. Gaps
-                   List any opening questions or missing information that should be clarified at the start of the meeting to ensure it stays on track.
-
-                %s
-                6. What Matters Now
-                   Based on all available context, what is the single most important thing this customer cares about right now? Frame it from their perspective.
-
-                7. Mapping of Context to Problem
-                   For each piece of context provided, explain how it directly relates to the problem or the meeting goals.
-
-                8. Top Risks / Opportunities
-                   A concise list of the most important risks to be aware of and the biggest opportunities to capitalise on in this meeting.
-
-                9. Suggested Talking Points
-                   A structured set of specific, customer-tailored talking points to guide the conversation. Prioritise by importance.
-
-                10. Recommended Next Actions
-                    Concrete follow-up actions to propose at the end of the meeting, with suggested owners where possible.
+                Return a JSON object with EXACTLY this structure:
+                {
+                  "customer_snapshot": {
+                    "customer": "<customer or company name>",
+                    "relationship_stage": "<New | Active | At-Risk | Renewal>",
+                    "health_signals": {
+                      "risk_level": "<Low | Medium | High>",
+                      "business_impact": "<Low | Medium | High | Critical>",
+                      "renewal_risk": "<Low | Medium | High>",
+                      "risk_alert": "<one-line alert string, or null if none>"
+                    },
+                    "summary": "<2-3 sentence overview of the customer and relationship>"
+                  },
+                  "meeting_goals": [
+                    "<specific, outcome-oriented goal 1>",
+                    "<goal 2>"
+                  ],
+                  "gaps": [
+                    {
+                      "question": "<opening question or unknown>",
+                      "why_it_matters": "<why this gap matters to the meeting outcome>",
+                      "suggested_approach": "<how to surface or ask about this>"
+                    }
+                  ],
+                  "problem_summary": "<concise summary of the core problem>",
+                  %s,
+                  "what_matters_now": {
+                    "headline": "<single most important thing the customer cares about right now>",
+                    "detail": "<supporting explanation framed from the customer perspective>"
+                  },
+                  "problem_mapping": [
+                    {
+                      "context_source": "<which context document or area>",
+                      "relevance": "<how it directly relates to the problem or meeting goals>"
+                    }
+                  ],
+                  "risks_and_opportunities": {
+                    "risks": ["<risk 1>", "<risk 2>"],
+                    "opportunities": ["<opportunity 1>", "<opportunity 2>"]
+                  },
+                  "talking_points": [
+                    {
+                      "phase": "<Opening | Diagnosis | Solution | Strategy | Closure>",
+                      "time_range": "<e.g. 0-3 min>",
+                      "objective": "<what to achieve in this phase>",
+                      "key_messages": ["<message 1>", "<message 2>"],
+                      "suggested_phrasing": "<example opening line or phrasing for this phase>"
+                    }
+                  ],
+                  "next_actions": [
+                    {
+                      "action": "<concrete follow-up action>",
+                      "owner": "<suggested owner or role>",
+                      "timeframe": "<immediate | short_term | medium_term | long_term>",
+                      "priority": "<High | Medium | Low>"
+                    }
+                  ]
+                }
                 """.formatted(
                         customerName != null ? customerName : "Unknown",
                         meetingContext != null ? meetingContext : "",
                         previousMeetingSection,
                         problemDocument,
                         formattedContextDocuments,
-                        previousMeetingInstruction);
+                        contextChangesInstruction);
     }
 
     private String formatContextDocuments(List<String> contextDocuments) {

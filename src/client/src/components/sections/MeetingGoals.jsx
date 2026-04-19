@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import { extractBullets } from '../../utils/parseBriefingUtils.js';
 import './sections.css';
 
-export default function MeetingGoals({ text }) {
+export default function MeetingGoals({ goals }) {
   const [open, setOpen] = useState(true);
-  const rawGoals = extractBullets(text);
-  const goals = rawGoals.length > 0 ? rawGoals : (text ? [text] : []);
   const [checked, setChecked] = useState(() => goals.map(() => false));
 
   function toggle(i) {
@@ -27,9 +24,7 @@ export default function MeetingGoals({ text }) {
           <div className="goals-list">
             {goals.map((g, i) => (
               <div key={i} className={`goal-item${checked[i] ? ' goal-item--done' : ''}`} onClick={() => toggle(i)}>
-                <div className={`goal-checkbox${checked[i] ? ' goal-checkbox--checked' : ''}`}>
-                  {checked[i] && '✓'}
-                </div>
+                <div className={`goal-checkbox${checked[i] ? ' goal-checkbox--checked' : ''}`}>{checked[i] && '✓'}</div>
                 <span className="goal-text">{g}</span>
               </div>
             ))}
@@ -47,4 +42,3 @@ export default function MeetingGoals({ text }) {
     </div>
   );
 }
-
