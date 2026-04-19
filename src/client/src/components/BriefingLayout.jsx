@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import {
-  parseBriefing, inferHealthIndicators, inferStatusBadge,
-} from '../utils/parseBriefingUtils.js';
+import { parseBriefing } from '../utils/parseBriefingUtils.js';
 import BriefingHeader from './BriefingHeader.jsx';
 import LeftNav from './LeftNav.jsx';
-import RightPanel from './RightPanel.jsx';
 import CustomerSnapshot from './sections/CustomerSnapshot.jsx';
 import MeetingGoals from './sections/MeetingGoals.jsx';
 import GapsAndUnknowns from './sections/GapsAndUnknowns.jsx';
@@ -27,8 +24,6 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
   const mainRef = useRef(null);
 
   const sections = parseBriefing(briefing.output);
-  const healthIndicators = inferHealthIndicators(sections.customerSnapshot);
-  const statusBadge = inferStatusBadge(sections);
 
   // Scroll-spy: highlight active nav item
   useEffect(() => {
@@ -59,8 +54,6 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
       <BriefingHeader
         customerName={briefing.customerName}
         meetingContext={briefing.meetingContext}
-        statusBadge={statusBadge}
-        healthIndicators={healthIndicators}
         onReset={onReset}
         onExport={onExport}
         exporting={exporting}
@@ -78,9 +71,7 @@ export default function BriefingLayout({ briefing, onReset, onExport, exporting 
           <SuggestedTalkingPoints text={sections.talkingPoints} />
           <ActionPlan text={sections.actionPlan} />
         </main>
-        <RightPanel sections={sections} />
       </div>
     </div>
   );
 }
-
