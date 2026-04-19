@@ -30,14 +30,8 @@
   .briefing-layout { --right-panel-width: 260px; }
 }
 
-@media (max-width: 960px) {
-  .right-panel { display: none; }
-  .briefing-layout { --right-panel-width: 0; }
-}
-
 @media (max-width: 720px) {
   .left-nav { display: none; }
-  .briefing-layout { --left-nav-width: 0; }
   .briefing-layout__main { padding: 16px 16px 60px; }
 }
 

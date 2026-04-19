@@ -33,31 +33,29 @@
 
 /* ── Signal pills ────────────────────────────────────────────────────────── */
 .signal-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
 .signal-pill {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
   border: 1px solid var(--border);
 }
 
 .signal-pill__label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 0.65rem;
+  font-weight: 400;
   color: var(--text-muted);
 }
 
 .signal-pill__value {
-  font-size: 0.82rem;
+  font-size: 0.68rem;
   font-weight: 700;
 }
 
