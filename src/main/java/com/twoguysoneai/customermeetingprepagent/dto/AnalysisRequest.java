@@ -1,15 +1,17 @@
 package com.twoguysoneai.customermeetingprepagent.dto;
 
+import java.util.List;
+
 public class AnalysisRequest {
 
     private String problemUrl;
-    private String contextUrl;
+    private List<String> contextUrls;
 
     public AnalysisRequest() {}
 
-    public AnalysisRequest(String problemUrl, String contextUrl) {
+    public AnalysisRequest(String problemUrl, List<String> contextUrls) {
         this.problemUrl = problemUrl;
-        this.contextUrl = contextUrl;
+        this.contextUrls = contextUrls;
     }
 
     public String getProblemUrl() {
@@ -20,12 +22,12 @@ public class AnalysisRequest {
         this.problemUrl = problemUrl;
     }
 
-    public String getContextUrl() {
-        return contextUrl;
+    public List<String> getContextUrls() {
+        return contextUrls;
     }
 
-    public void setContextUrl(String contextUrl) {
-        this.contextUrl = contextUrl;
+    public void setContextUrls(List<String> contextUrls) {
+        this.contextUrls = contextUrls;
     }
 }
 
